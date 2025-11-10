@@ -158,6 +158,7 @@ class dbqISWS(object):
                 stn_results = self.data[self.data.Station_ID == stn]
                 ax.plot(stn_results.DateTime, stn_results.DTW_ft)
 
+
         else:
 
             numstations = self.data.Station_ID.unique().shape[0]
@@ -260,14 +261,20 @@ class dbqISWS(object):
 if __name__ == '__main__':
 
     # sql_str = """SELECT * FROM dbo.TBL_Charts;"""
+    '''
     sql_str = """SELECT GW_OBV.OB_LOCATIONS.P_NUMBER, GW_OBV.OB_LOCATIONS.*, GW_OBV.OB_MEASUREMENTS.*
         FROM GW_OBV.OB_LOCATIONS INNER JOIN GW_OBV.OB_MEASUREMENTS ON GW_OBV.OB_LOCATIONS.P_NUMBER = GW_OBV.OB_MEASUREMENTS.P_Number
         WHERE (((GW_OBV.OB_LOCATIONS.P_NUMBER)=403609 Or (GW_OBV.OB_LOCATIONS.P_NUMBER)=403610 Or (GW_OBV.OB_LOCATIONS.P_NUMBER)=403611 Or (GW_OBV.OB_LOCATIONS.P_NUMBER)=403612 Or (GW_OBV.OB_LOCATIONS.P_NUMBER)=404869 Or (GW_OBV.OB_LOCATIONS.P_NUMBER)=135237));"""
+    '''
+    sql_str = """SELECT *, m.TIMESTAMP DateTime FROM GW_OBV.OB_LOCATIONS l 
+        INNER JOIN GW_OBV.OB_MEASUREMENTS m ON l.P_NUMBER = m.P_Number
+        WHERE l.P_NUMBER in (403609,403610,403611,403612,404869,135237)"""
 
     query = dbqISWS()
     query.sql_query(sql_str)
-    query.clost_connection()
-    query.plot_timeseries(plot_field='something')
+    query.close_connection()
+    #orig query.plot_timeseries(plot_field='something')
+    query.plot_timeseries(plot_field='DTW_FT_RAW')
 
     # query = dbqISWS(Driver="SQL Server",
     #                 Server="datastorm",
