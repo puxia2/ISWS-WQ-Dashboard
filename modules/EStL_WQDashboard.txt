@@ -1,0 +1,19 @@
+select o.Organization_Name, pp.Project_Report_Purpose, l.Station_ID, l.Name,l.Lat, l.Long,
+s.Sample_ID, s.Start_Date, s.Missing_Time, m.Medium_Description, st.Sample_Type_Description, s.Filtered, s.Comments, s.Depth_ft, s.Depth_Qual,
+pr.Parameter_Code, pr.Description as ParamName, r.Operator, r.Result_Value,
+case
+	when pr.Parameter_Unit = 'mg/L' THEN r.Result_Value * 1000
+	when pr.Parameter_Unit = 'ug/L' THEN r.Result_Value
+	ELSE NULL
+END as Result_Value_ugL,
+rr.Remark_Description, r.Comment
+from TBL_Results r
+left join TBL_Parameter pr on pr.Parameter_Code=r.Parameter_Code
+left join TBL_Result_Remarks rr on r.Remark_Code=rr.Remark_Code
+left join TBL_Sample s on r.Sample_ID=s.Sample_ID
+left join TBL_Location l on l.Station_ID=s.Station_ID
+left join TBL_Project pp on s.Proj_ID=pp.Proj_ID
+left join TBL_Organization o on o.Org_ID=pp.Org_ID
+left join TBL_Medium m on s.Medium=m.Medium
+left join TBL_Sample_Type st on s.Sample_Type=st.Sample_Type
+order by pp.Proj_ID, l.Station_ID, s.Start_Date, pr.Description;
