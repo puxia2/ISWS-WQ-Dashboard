@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import TimeSeriesPlot from "./time-series-plot";
+import TimeSeriesPlot from "../../plots/time-series-plot";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import BoxPlot from "./box-plot";
+import BoxPlot from "../../plots/box-plot";
 
 import RadioBoxplotWrapper from "./radio-boxplot-wrapper";
 

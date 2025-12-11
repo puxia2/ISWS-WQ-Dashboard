@@ -14,6 +14,7 @@ import {
 } from "recharts";
 import { TimeSeriesPlotProps } from "@/types/chart";
 import { useCsvData } from "@/components/csv-reader";
+import { toMDY, mdySortKey, coerceNumber } from "@/lib/date";
 
 const DEFAULT_COLORS = [
   "#b45309", // amber-700
@@ -32,7 +33,7 @@ const DEFAULT_COLORS = [
 interface CsvRow {
   ParamName: string;
   Name: string;
-  Start_Date: string; // 例如 "10/1/2020 12:00:00 AM"
+  Start_Date: string; // for example: "10/1/2020 12:00:00 AM"
   Result_Value?: number | string; // Conentration
   [k: string]: unknown; // there could be more columns, type is unknown
 }
@@ -49,36 +50,13 @@ type WidePoint = {
   [site: string]: string | number | undefined; // site name
 };
 
-function toMDY(dateTime: string): string | null {
-  if (!dateTime) return null;
-  const first = String(dateTime).trim().split(/\s+/)[0] || ""; // "10/1/2020"
-  const [mRaw, dRaw, yRaw] = first.split("/");
-  if (!mRaw || !dRaw || !yRaw) return null;
-  const mm = mRaw.padStart(2, "0");
-  const dd = dRaw.padStart(2, "0");
-  const yyyy = yRaw; // year is always 4 digits
-  return `${mm}/${dd}/${yyyy}`;
-}
-
-function mdySortKey(mdy: string): number | null {
-  // mdy: mm/dd/yyyy
-  const [mm, dd, yyyy] = mdy.split("/");
-  if (!mm || !dd || !yyyy) return null;
-  const key = Number(`${yyyy}${mm}${dd}`);
-  return Number.isFinite(key) ? key : null;
-}
-
-function coerceNumber(x: unknown): number | null {
-  if (x === null || x === undefined || x === "") return null;
-  const n = typeof x === "number" ? x : Number(String(x).replace(/,/g, ""));
-  return Number.isFinite(n) ? n : null;
-}
-
 export default function TimeSeriesPlot({
   targetParam,
   sites,
   csvPath = "/EStL_AllDataJoin.csv",
   colors = {},
+  height = 440,
+  compact = false,
 }: TimeSeriesPlotProps) {
   // const [rows, setRows] = useState<CsvRow[]>([]);
   // const [loading, setLoading] = useState(false);
@@ -154,10 +132,25 @@ export default function TimeSeriesPlot({
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-4 p-6">
+    <div
+      className={
+        compact
+          ? "w-full space-y-2 p-4" // compact mode for popup
+          : "mx-auto max-w-5xl space-y-4 p-6"
+      }
+    >
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{targetParam}</h1>
-        <p className="text-muted-foreground">Site: {sites.join(", ")}</p>
+        {!compact && (
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {targetParam}
+          </h1>
+        )}
+
+        {!compact && (
+          <p className="text-sm text-muted-foreground">
+            Site: {sites.join(", ")}
+          </p>
+        )}
       </div>
 
       {loading && (
@@ -165,18 +158,25 @@ export default function TimeSeriesPlot({
       )}
       {error && <div className="text-sm text-red-600">{error}</div>}
 
-      <div className="text-sm text-muted-foreground">
-        {rows.length ? (
-          <>
-            Already loading <b>{rows.length.toLocaleString()}</b> rows，with{" "}
-            <b>{data.length}</b> data points
-          </>
-        ) : (
-          <>No data loaded</>
-        )}
-      </div>
+      {!compact && (
+        <div className="text-sm text-muted-foreground">
+          {rows.length ? (
+            <>
+              Already loading <b>{rows.length.toLocaleString()}</b> rows，with{" "}
+              <b>{data.length}</b> data points
+            </>
+          ) : (
+            <>No data loaded</>
+          )}
+        </div>
+      )}
 
-      <div className="h-[440px] w-full rounded-2xl border p-3">
+      <div className="w-full rounded-2xl border p-1" style={{ height: height }}>
+        {compact && (
+          <div className="flex justify-center items-center font-bold">
+            Depth to water table (ft)
+          </div>
+        )}
         {data.length ? (
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
@@ -204,6 +204,7 @@ export default function TimeSeriesPlot({
                   dx: -30,
                   fontWeight: "bold",
                 }}
+                width={compact ? 15 : undefined}
               />
               <Tooltip />
               <Legend

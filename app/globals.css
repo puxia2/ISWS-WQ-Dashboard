@@ -124,3 +124,21 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* make the popup card transparent, no border, no padding, no margin, no shadow */
+.leaflet-popup.site-popup .leaflet-popup-content-wrapper {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 0;
+}
+
+/* remove default margin */
+.leaflet-popup.site-popup .leaflet-popup-content {
+  margin: 0;
+}
+
+/* hide the small triangle */
+/* .leaflet-popup.site-popup .leaflet-popup-tip-container {
+  display: none;
+} */

@@ -2,7 +2,7 @@
 
 import ScaleSwitcher, { Scale } from "@/components/scale-switcher";
 import { useState } from "react";
-import BoxPlot from "./box-plot";
+import BoxPlot from "../../plots/box-plot";
 
 export default function RadioBoxplotWrapper() {
   const [scaleType, setScaleType] = useState<Scale>("linear");
